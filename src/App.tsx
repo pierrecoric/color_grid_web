@@ -1,31 +1,32 @@
-import { useState } from 'react'
+import { JSXElementConstructor, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Cells from './Cells.tsx'
 
 function App() {
 
-
+  let cols: number = 12;
+  let rows: number = 12;
+  let randomArray: number [][] = [];
 
   //function to generate the random array
-  function generateRandomArray(rows: number, cols: number) {
+  function generateRandomArray(rows: number, cols: number, maxColors: number): number[][] {
     //create an empty array
     const randomArray: number [][] = [];
     for (let y: number = 0; y < rows; y++) {
-      let currenctRow: number[] = [];
+      let currentRow: number[] = [];
       for (let x: number = 0; x < cols; x++) {
         let randomValue: number;
         do {
-          randomValue = getRandomInt(0,5);
+          randomValue = getRandomInt(0,maxColors);
         } while (hasSameNeighbor(randomArray, y, x, randomValue));
-        currenctRow.push(randomValue);
+        currentRow.push(randomValue);
       }
-      randomArray.push(currenctRow);
+      randomArray.push(currentRow);
     }
-    console.log(randomArray);
+    return randomArray;
   }
-
-
 
   // Function to check if a cell has the same neighbor
   function hasSameNeighbor(array: number[][], row: number, col: number, value: number): boolean {
@@ -35,17 +36,18 @@ function App() {
       [row, col - 1], // Left
       [row, col + 1]  // Right
     ];
-
+  
     // Check if one of the neighbors has the same value
     for (const neighbor of neighbors) {
       const r: number = neighbor[0];
       const c: number = neighbor[1];
-
+  
       // Check if the neighbor coordinates are within bounds and have the same value
       if (r >= 0 && r < array.length && c >= 0 && c < array[0].length && array[r][c] === value) {
         return true; // Value is the same as a neighbor
       }
     }
+  
     return false; // No neighbor has the same value
   }
 
@@ -57,11 +59,25 @@ function App() {
     return Math.floor(Math.random() * (maxInt - minInt + 1)) + minInt;
   }
 
-  generateRandomArray(42, 15);
+  randomArray = (generateRandomArray(rows, cols, 5));
+  console.log(randomArray);
+
+  let allCells: JSX.Element[] = [];
+  for (let y: number = 0; y < rows; y++) {
+    for (let x: number = 0; x < cols; x++) {
+      allCells.push(
+        <Cells key={y*12+x} id={`cells${y*12+x}`} colorClass={`color${randomArray[y][x]}`} text={randomArray[y][x]}
+        />
+        
+      );
+    }
+  }
 
   return (
     <>
-    <div></div>
+    <div className='grid grid-cols-8 gap-0'>
+      {allCells}
+    </div>
     </>
   )
 }
